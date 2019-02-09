@@ -19,11 +19,11 @@ export default (config, xScale) => selection => {
         const groups = groupBy(d.data, data =>
             Math.round(xScale(dropDate(data)))
         );
-        return Object.values(groups).map(group =>
-            Object.assign({}, group[0], {
-                radius: getDropRadius(group.length),
-            })
-        );
+        return Object.values(groups).map(group => ({
+            object: group[0],
+            date: dropDate(group[0]),
+            radius: getDropRadius(group.length),
+        }));
     };
 
     const drops = selection
@@ -34,13 +34,13 @@ export default (config, xScale) => selection => {
         .enter()
         .append('circle')
         .classed('drop', true)
-        .on('click', onClick)
-        .on('mouseover', onMouseOver)
-        .on('mouseout', onMouseOut)
+        .on('click', d => onClick(d.object))
+        .on('mouseover', d => onMouseOver(d.object))
+        .on('mouseout', d => onMouseOut(d.object))
         .merge(drops)
         .attr('r', drop => drop.radius)
         .attr('fill', dropColor)
-        .attr('cx', d => xScale(dropDate(d)));
+        .attr('cx', d => xScale(d.date));
 
     drops
         .exit()
